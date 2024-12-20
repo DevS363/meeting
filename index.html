@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Meet Clone</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+        }
+
+        header {
+            background-color: #202124;
+            color: white;
+            text-align: center;
+            padding: 1rem 0;
+            font-size: 1.5rem;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .video-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            width: 100%;
+            max-width: 1200px;
+            margin-top: 20px;
+        }
+
+        video {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .controls {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #1a73e8;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .btn:hover {
+            background-color: #1558b8;
+        }
+
+        .btn.end-call {
+            background-color: #ea4335;
+        }
+
+        .btn.end-call:hover {
+            background-color: #c5302b;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        Google Meet Clone
+    </header>
+
+    <div class="container">
+        <div class="controls">
+            <button class="btn" id="startVideo">Start Video</button>
+            <button class="btn" id="muteVideo">Mute Video</button>
+            <button class="btn end-call" id="endCall">End Call</button>
+        </div>
+
+        <div class="video-container" id="videoContainer">
+            <!-- Video elements will be added here -->
+        </div>
+    </div>
+
+    <script>
+        const startVideoButton = document.getElementById('startVideo');
+        const muteVideoButton = document.getElementById('muteVideo');
+        const endCallButton = document.getElementById('endCall');
+        const videoContainer = document.getElementById('videoContainer');
+
+        let localStream;
+
+        // Start Video
+        startVideoButton.addEventListener('click', async () => {
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                const videoElement = document.createElement('video');
+                videoElement.srcObject = localStream;
+                videoElement.autoplay = true;
+                videoElement.muted = true;
+                videoContainer.appendChild(videoElement);
+            } catch (error) {
+                console.error('Error accessing media devices.', error);
+            }
+        });
+
+        // Mute Video
+        muteVideoButton.addEventListener('click', () => {
+            if (localStream) {
+                const videoTrack = localStream.getVideoTracks()[0];
+                videoTrack.enabled = !videoTrack.enabled;
+                muteVideoButton.textContent = videoTrack.enabled ? 'Mute Video' : 'Unmute Video';
+            }
+        });
+
+        // End Call
+        endCallButton.addEventListener('click', () => {
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+                videoContainer.innerHTML = '';
+            }
+        });
+    </script>
+</body>
+</html>
